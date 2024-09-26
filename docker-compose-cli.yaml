@@ -1,0 +1,73 @@
+version: '2'
+
+volumes:
+  orderer.panha-network.com:
+  peer0.be1.panha-network.com:
+  peer0.be2.panha-network.com:
+
+
+networks:
+  byfn:
+
+services:
+
+  orderer.panha-network.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.panha-network.com
+    container_name: orderer.panha-network.com
+    networks:
+      - byfn
+
+  peer0.be1.panha-network.com:
+    container_name: peer0.be1.panha-network.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.be1.panha-network.com
+    networks:
+      - byfn
+
+  
+  peer0.be2.panha-network.com:
+    container_name: peer0.be2.panha-network.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.be2.panha-network.com
+    networks:
+      - byfn
+
+ 
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools
+    tty: true
+    stdin_open: true
+    dns_search: .
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- CORE_LOGGING_LEVEL=DEBUG
+      - CORE_LOGGING_LEVEL=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.be1.panha-network.com:7051
+      - CORE_PEER_LOCALMSPID=Burakcan1MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/fabric-samples/panha-network/crypto-config/peerOrganizations/be1.panha-network.com/peers/peer0.be1.panha-network.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/fabric-samples/panha-network/crypto-config/peerOrganizations/be1.panha-network.com/peers/peer0.be.panha-network.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/fabric-samples/panha-network/crypto-config/peerOrganizations/be2.panha-network.com/peers/peer0.be2.panha-network.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/fabric-samples/panha-network/crypto-config/peerOrganizations/be2.panha-network.com/users/Admin@be2.panha-network.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/chain
+        - ./crypto-config:/opt/gopath/fabric-samples/panha-network/crypto-config/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/fabric-samples/panha-network/channel-artifacts
+
+    depends_on:
+      - orderer.panha-network.com
+      - peer0.be1.panha-network.com
+      - peer0.be2.panha-network.com
+    networks:
+      - byfn

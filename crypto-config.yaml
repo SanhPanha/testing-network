@@ -1,0 +1,24 @@
+OrdererOrgs:
+  - Name: OrderingService
+    Domain: panha-network.com
+    Specs:
+      - Hostname: orderer
+
+PeerOrgs:
+  - Name: Panha1
+    Domain: be1.panha-network.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+
+    Users: 
+      Count: 1
+      
+  - Name: Panha2
+    Domain: be2.panha-network.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+
+    Users: 
+      Count: 1
